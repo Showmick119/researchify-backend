@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+firebase-admin
+pydantic
+requests
+gunicorn
+python-multipart
+PyJWT

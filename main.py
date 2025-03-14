@@ -3,6 +3,8 @@ from firebase_admin import auth, credentials, firestore, initialize_app
 from pydantic import BaseModel
 import uvicorn
 from typing import Optional
+import requests
+import gunicorn
 
 # Initialize Firebase
 cred = credentials.Certificate("firebase-service-account.json")
