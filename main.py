@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, Header
-from firebase_admin import auth, credentials, firestore, initialize_app, firebase_admin
+from firebase_admin import auth, credentials, firestore, initialize_app
+import firebase_admin
 from pydantic import BaseModel
 import uvicorn
 from typing import Optional
@@ -8,14 +9,18 @@ import gunicorn
 import os
 import json
 
-# Initialize Firebase
-if os.path.exists("firebase-service-account.json"):
-    cred = credentials.Certificate("firebase-service-account.json")
+# Initialize Firebase Credentials
+firebase_creds = os.getenv("FIREBASE_CREDENTIALS")
+if firebase_creds:
+    cred_dict = json.loads(firebase_creds)  # Decode JSON string from env
+    cred = credentials.Certificate(cred_dict)
 else:
-    firebase_creds = json.loads(os.getenv("FIREBASE_CREDENTIALS"))
-    cred = credentials.Certificate(firebase_creds)
+    cred = credentials.Certificate("firebase-service-account.json")  # Fallback
 
-firebase_admin.initialize_app(cred)
+# Initialize Firebase
+if not firebase_admin._apps:
+    firebase_admin.initialize_app(cred)
+
 db = firestore.client()
 app = FastAPI()
 
@@ -190,6 +195,6 @@ def delete_application(application_id: str):
     print(f"Application deleted: {application_id}")  # Debug log
     return {"message": "Application deleted successfully"}
 
-# Running the server
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# Running the server (NO LONGER NEEDED, AS RENDER ITSELF RUNS THE APPLICATION WITH GUNICORN)
+# if __name__ == "__main__":
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
