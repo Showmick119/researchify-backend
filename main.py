@@ -1,16 +1,22 @@
 from fastapi import FastAPI, HTTPException, Depends, Header
-from firebase_admin import auth, credentials, firestore, initialize_app
+from firebase_admin import auth, credentials, firestore, initialize_app, firebase_admin
 from pydantic import BaseModel
 import uvicorn
 from typing import Optional
 import requests
 import gunicorn
+import os
+import json
 
 # Initialize Firebase
-cred = credentials.Certificate("firebase-service-account.json")
-initialize_app(cred)
-db = firestore.client()
+if os.path.exists("firebase-service-account.json"):
+    cred = credentials.Certificate("firebase-service-account.json")
+else:
+    firebase_creds = json.loads(os.getenv("FIREBASE_CREDENTIALS"))
+    cred = credentials.Certificate(firebase_creds)
 
+firebase_admin.initialize_app(cred)
+db = firestore.client()
 app = FastAPI()
 
 # User Models
